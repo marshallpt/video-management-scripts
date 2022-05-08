@@ -209,5 +209,10 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # Video files I'm tesing with
-*.mpg
-*.MOD
+*.mpg*
+*.mpeg*
+*.MOD*
+
+# Generated files
+*.avs
+*.bat
