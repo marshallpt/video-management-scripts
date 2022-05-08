@@ -1,6 +1,6 @@
 import os
 
-desired_extension = '.mpg'
+vid_extension = '.mpg'
 working_directory = os.getcwd()
 split_path = working_directory.split('\\')
 
@@ -17,24 +17,24 @@ count = 0
 fileVal = ''
 
 for entry in file_list:
-	fileVal = entry.name
-	if fileVal.find(desired_extension) != -1 and fileVal.find('.ffindex') == -1:
-		print(entry.name)
+	if entry.name.find(vid_extension) != -1 and entry.name.find('.ffindex') == -1:
+		print(entry, end='')
+		print(os.path.getmtime(entry))
 		if count != 0:
 			avs_file.write('  ++ \\\n')
-		entry = f'FFmpegSource2("{working_directory}\\{fileVal}", atrack = -1)'
-		avs_file.write(entry)
+		avs_line = f'FFmpegSource2("{entry.path}", atrack = -1)'
+		avs_file.write(avs_line)
 		count += 1
 
 
 # Writing the batch file too because I'm lazy
-batchFile = open(batch_name, "w+")
-entry = f'ffmpeg -i {avs_name} -target ntsc-dvd -r 29.97 -s 720x480 -aspect 16:9 -b:v 8000k ' \
+batch_file = open(batch_name, "w+")
+batch_line = f'ffmpeg -i {avs_name} -target ntsc-dvd -r 29.97 -s 720x480 -aspect 16:9 -b:v 8000k ' \
 		f'{project_name}.mpeg \npause'
-batchFile.write(entry)
+batch_file.write(batch_line)
 
 
 # Closing all files
 file_list.close
 avs_file.close
-batchFile.close
+batch_file.close
