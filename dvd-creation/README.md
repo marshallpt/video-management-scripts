@@ -52,5 +52,5 @@ Placing `avisynth_dvd_writer.py` into `video_example` and running it with the co
 11-2-2013.avs
 encode_me.bat
 ```
-Running `enoce_me.bat` will execute ffmpeg to encode all the `.avs` files, and will pause the 
+Running `encode_me.bat` will execute ffmpeg to encode all the `.avs` files, and will pause the 
 terminal window on completion so the output can be read.
