@@ -8,8 +8,10 @@ a .bat file to encode it via FFMPEG for DVD delivery.
     * generate_avs_file - concatenates all passed files into one .avs file
     * generate_bat_file - generates .bat file to ffmpeg encode .avs file
 """
+import datetime
 import os
 import re
+import time
 
 
 def modified_date(entry):
@@ -25,7 +27,7 @@ def parse_file_list(file_list, extensions):
     :param extensions: list of desired file extensions in new file_list
     :return: sorted & pruned file_list
     """
-    new_list = []
+    trimmed_list = []
     file_list.sort(key=modified_date)
 
     for entry in file_list:
@@ -33,9 +35,36 @@ def parse_file_list(file_list, extensions):
             regex_compare = rf"\.{ext}$"
             match = re.search(regex_compare, entry.name)
             if match is not None:
-                new_list.append(entry)
+                trimmed_list.append(entry)
 
-    return new_list
+    new_list = []
+
+    for entry in trimmed_list:
+        timestamp = os.path.getmtime(entry)
+        date = datetime.datetime.fromtimestamp(timestamp)
+        date_recorded = f"{date.month}-{date.day}-{date.year}"
+
+        index = len(new_list) - 1
+
+        # If the new_list is entirely empty
+        if index == -1:
+            new_list.append([date_recorded])
+            new_list[index+1].append(entry)
+
+        # If the date is already added
+        elif new_list[index][0] == date_recorded:
+            new_list[index].append(entry)
+
+        # If the date is new
+        else:
+            new_list.append([date_recorded])
+            new_list[index+1].append(entry)
+
+        print(f"{entry}, {date_recorded}, {time.ctime(timestamp)}")
+
+    print(new_list)
+
+    return trimmed_list
 
 
 def generate_avs_file(proj_name, file_list):
@@ -50,7 +79,6 @@ def generate_avs_file(proj_name, file_list):
         count = 0
 
         for entry in file_list:
-            print(f"{entry}, {os.path.getmtime(entry)}")
             if count != 0:
                 avs_file.write('  ++ \\\n')
             avs_line = f'FFmpegSource2("{entry.path}", atrack = -1)'
@@ -82,9 +110,9 @@ def main():
     file_list = list(os.scandir(cwd))
 
     extensions = ['MOD', 'mpg']
+    print(f"Operating path: {cwd}\nFiles found: ")
     file_list = parse_file_list(file_list=file_list, extensions=extensions)
 
-    print(f"Operating path: {cwd}\nFiles found: ")
     generate_avs_file(proj_name=proj_name, file_list=file_list)
     generate_bat_file(proj_name=proj_name)
 
