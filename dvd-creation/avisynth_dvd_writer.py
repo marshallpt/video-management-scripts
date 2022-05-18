@@ -1,12 +1,12 @@
 """AviSynth DVD Writer
 
-This script concatenates every video in its running directory in a single .avs file and generates
-a .bat file to encode it via FFMPEG for DVD delivery.
+Concatenates a single video file for each date footage was recorded by creating a .avs file for
+each and generating a .bat file to encode them all via FFMPEG for DVD delivery.
 
     * modified_date - returns date file was modified
-    * parse_file_list - sorts & filters file list
-    * generate_avs_file - concatenates all passed files into one .avs file
-    * generate_bat_file - generates .bat file to ffmpeg encode .avs file
+    * parse_file_list - sorts & filters file list and splits into sub-lists based on date modified
+    * generate_avs_file - concatenates passed files into .avs file for each day
+    * generate_bat_file - generates .bat file to ffmpeg encode all generated .avs files
 """
 import datetime
 import os
@@ -21,11 +21,13 @@ def modified_date(entry):
 
 def parse_file_list(file_list, extensions):
     """
-    Sort file list by date modified and return list only containing passed extensions.
+    Sort file list by date modified, remove files not matching extensions, and sort into sub-lists
+    each containing a separate modified date.
 
     :param file_list: list of files in the cwd
     :param extensions: list of desired file extensions in new file_list
-    :return: sorted & pruned file_list
+    :return: list of DirEntry lists: each sub-list containing unique file modification date, index 0
+    in each being a string of the date they were modified
     """
     trimmed_list = []
     file_list.sort(key=modified_date)
@@ -64,27 +66,28 @@ def parse_file_list(file_list, extensions):
 
     print(new_list)
 
-    return trimmed_list
+    return new_list
 
 
-def generate_avs_file(proj_name, file_list):
+def generate_avs_file(file_list):
     """
-    Generate an AviSynth file with the passed project name and file list.
+    Generate AviSynth files for each sublist in file_list.
 
-    :param proj_name: string : file name
-    :param file_list: DirEntry list : list of files to add to the AviSynth file
+    :param file_list: list of DirEntry lists : each sub-list containing unique file modification
+    date, index 0 in each being a string of the date they were modified
     :return: no return value
     """
-    with open(f"{proj_name}.avs", mode="w", encoding="UTF-8") as avs_file:
-        count = 0
+    for sublist in file_list:
+        with open(f"{sublist[0]}.avs", mode="w", encoding="UTF-8") as avs_file:
+            count = 0
 
-        for entry in file_list:
-            if count != 0:
-                avs_file.write('  ++ \\\n')
-            avs_line = f'FFmpegSource2("{entry.path}", atrack = -1)'
-            avs_file.write(avs_line)
-            count += 1
-    avs_file.close()
+            for entry in range(1, len(sublist)):
+                if count != 0:
+                    avs_file.write('  ++ \\\n')
+                avs_line = f'FFmpegSource2("{sublist[entry].path}", atrack = -1)'
+                avs_file.write(avs_line)
+                count += 1
+        avs_file.close()
 
 
 def generate_bat_file(proj_name):
@@ -113,7 +116,7 @@ def main():
     print(f"Operating path: {cwd}\nFiles found: ")
     file_list = parse_file_list(file_list=file_list, extensions=extensions)
 
-    generate_avs_file(proj_name=proj_name, file_list=file_list)
+    generate_avs_file(file_list=file_list)
     generate_bat_file(proj_name=proj_name)
 
 
