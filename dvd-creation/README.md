@@ -54,3 +54,9 @@ encode_me.bat
 ```
 Running `encode_me.bat` will execute ffmpeg to encode all the `.avs` files, and will pause the 
 terminal window on completion so the output can be read.
+
+## `file_collapser.py`
+I use this script before `avisynth_dvd_writer.py` to recursively go through directories within cwd
+and move all desired file types into the cwd so they're all in one place. As with 
+`avisynth_dvd_writer.py`, the the `extensions` list in `main()` can easily be modified for any
+desired filetype.

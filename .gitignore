@@ -212,7 +212,11 @@ fabric.properties
 *.mpg*
 *.mpeg*
 *.MOD*
+*.wmv*
 
 # Generated files
 *.avs
 *.bat
+
+# Windows stuff
+*.db
