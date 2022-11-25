@@ -17,21 +17,25 @@ def parse_file(input_file, output_file):
     with open(input_file, mode="r") as input:
         with open(output_file, mode="w", encoding="UTF-8") as output:
             for line in input:
+                count = 0
+                old_line = line
                 match = re.search(pattern,line)
-                match_iter = re.finditer(pattern,line)
-                if not match:
-                    output.write(line)
-                else:
+                while match:
+                    count +=1
                     match_body = line[match.start():match.end()]
 
                     beginning = line[:match.start()]
                     middle = match_body.replace('<i>',"").replace('</i>',"").strip()
                     end = line[match.end():]
-                    new_line = beginning + middle + end
-                    print("-------------------------------------")
+                    line = beginning + middle + end
+                    match = re.search(pattern,line)
                     # print(f"Modifying : {line}With: {beginning=} {middle=} {end=}")
-                    print(f"Modifying : {line}With: {new_line}")
-                    output.write(new_line)
+                if count != 0:
+                    print("-------------------------------------")
+                    print(f"""{'Modifying' : <15}: {old_line : >30}"""
+                          f"""{f'With ({count} fixes)': <15}: {line : >30}""")
+                output.write(line)
+                    
 
 def main():
     parser = argparse.ArgumentParser(description="Simulation L1 cache.",
