@@ -43,9 +43,14 @@ def main():
     
     parser.add_argument("file_name", default="example.srt", nargs='?', 
                         help="Subtitle file name to parse.")
+    parser.add_argument("-o", "--output_file",
+                        help="Output file name.")
     args = parser.parse_args()
-
-    file_name = output_name(args.file_name)
+    
+    if args.output_file is not None:
+        file_name = args.output_file
+    else:
+        file_name = output_name(args.file_name)
     parse_file(input_file=args.file_name, output_file=file_name)
 
 
