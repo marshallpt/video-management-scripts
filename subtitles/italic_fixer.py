@@ -26,6 +26,18 @@ def fix_middle(line, count):
         # print(f"Modifying : {line}With: {beginning=} {middle=} {end=}")
     return line, count
 
+def fix_beginning(line, count):
+    pattern = r"^(.){1,4}<i>"
+    match = re.search(pattern,line)
+    while match:
+        count +=1
+        beginning = '<i>'
+        middle = line[:match.end()-3]
+        end = line[match.end():]
+        line = beginning + middle + end
+        match = re.search(pattern,line)
+    return line, count
+
 def parse_file(input_file, output_file):
     with open(input_file, mode="r") as input:
         with open(output_file, mode="w", encoding="UTF-8") as output:
@@ -33,6 +45,7 @@ def parse_file(input_file, output_file):
                 count = 0
                 old_line = line
                 line, count = fix_middle(line, count)
+                # line, count = fix_beginning(line, count)
                 if count != 0:
                     print("-------------------------------------")
                     print(f"""{'Modifying' : <15}: {old_line : >30}"""
