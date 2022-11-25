@@ -11,25 +11,28 @@ def output_name(file_name):
 
     return new_file_name
 
-def parse_file(input_file, output_file):
+def fix_middle(line, count):
     pattern = r"<\/i>( {0,2}.{1} {0,2})<i>|<i>( {0,2}.{1} {0,2})<\/i>"
+    match = re.search(pattern,line)
+    while match:
+        count +=1
+        match_body = line[match.start():match.end()]
 
+        beginning = line[:match.start()]
+        middle = match_body.replace('<i>',"").replace('</i>',"").strip()
+        end = line[match.end():]
+        line = beginning + middle + end
+        match = re.search(pattern,line)
+        # print(f"Modifying : {line}With: {beginning=} {middle=} {end=}")
+    return line, count
+
+def parse_file(input_file, output_file):
     with open(input_file, mode="r") as input:
         with open(output_file, mode="w", encoding="UTF-8") as output:
             for line in input:
                 count = 0
                 old_line = line
-                match = re.search(pattern,line)
-                while match:
-                    count +=1
-                    match_body = line[match.start():match.end()]
-
-                    beginning = line[:match.start()]
-                    middle = match_body.replace('<i>',"").replace('</i>',"").strip()
-                    end = line[match.end():]
-                    line = beginning + middle + end
-                    match = re.search(pattern,line)
-                    # print(f"Modifying : {line}With: {beginning=} {middle=} {end=}")
+                line, count = fix_middle(line, count)
                 if count != 0:
                     print("-------------------------------------")
                     print(f"""{'Modifying' : <15}: {old_line : >30}"""
