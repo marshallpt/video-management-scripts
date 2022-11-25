@@ -32,8 +32,20 @@ def fix_beginning(line, count):
     while match:
         count +=1
         beginning = '<i>'
-        middle = line[:match.end()-3]
+        middle = line[:match.end()-3].strip()
         end = line[match.end():]
+        line = beginning + middle + end
+        match = re.search(pattern,line)
+    return line, count
+
+def fix_end(line, count):
+    pattern = r"<\/i>(.){1,4}$"
+    match = re.search(pattern,line)
+    while match:
+        count +=1
+        beginning = line[:match.start()]
+        middle = line[match.start()+4:-1].strip()
+        end = '<\i>\n'
         line = beginning + middle + end
         match = re.search(pattern,line)
     return line, count
@@ -45,7 +57,8 @@ def parse_file(input_file, output_file):
                 count = 0
                 old_line = line
                 line, count = fix_middle(line, count)
-                # line, count = fix_beginning(line, count)
+                line, count = fix_beginning(line, count)
+                line, count = fix_end(line, count)
                 if count != 0:
                     print("-------------------------------------")
                     print(f"""{'Modifying' : <15}: {old_line : >30}"""
