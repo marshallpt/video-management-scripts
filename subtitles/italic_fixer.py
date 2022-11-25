@@ -12,7 +12,7 @@ def output_name(file_name):
     return new_file_name
 
 def fix_middle(line, count):
-    pattern = r"<\/i>( {0,2}.{1} {0,2})<i>|<i>( {0,2}.{1} {0,2})<\/i>"
+    pattern = r"<\/i>( ?. ?){1,4}<i>|<i>( ?. ?){1,4}<\/i>"
     match = re.search(pattern,line)
     while match:
         count +=1
@@ -20,14 +20,14 @@ def fix_middle(line, count):
 
         beginning = line[:match.start()]
         middle = match_body.replace('<i>',"").replace('</i>',"").strip()
-        end = line[match.end():]
+        end = line[match.end():].lstrip()
         line = beginning + middle + end
         match = re.search(pattern,line)
         # print(f"Modifying : {line}With: {beginning=} {middle=} {end=}")
     return line, count
 
 def fix_beginning(line, count):
-    pattern = r"^(.){1,4}<i>"
+    pattern = r"^( ?. ?){1,4}<i>"
     match = re.search(pattern,line)
     while match:
         count +=1
@@ -39,7 +39,7 @@ def fix_beginning(line, count):
     return line, count
 
 def fix_end(line, count):
-    pattern = r"<\/i>(.){1,4}$"
+    pattern = r"<\/i>( ?. ?){1,4}.?$"
     match = re.search(pattern,line)
     while match:
         count +=1
